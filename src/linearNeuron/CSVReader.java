@@ -20,20 +20,12 @@ public class CSVReader {
         try (BufferedReader br = new BufferedReader(new FileReader(csvPath))) {
             String line;
             while ((line = br.readLine()) != null) {
-                if (line.trim().isEmpty()) {
-                    continue;
-                }
-                int firstCommaIndex = line.indexOf(',');
-                if (firstCommaIndex == -1) {
-                    continue;
-                }
 
-                String language = line.substring(0, firstCommaIndex)
-                        .replace("\"", "")
-                        .trim();
+                String[] parts = line.split(",", 2);
+                if (parts.length < 2) continue; //it might be more than one comma in text, so we need to limit
 
-                String text = line.substring(firstCommaIndex + 1).trim();
-                text = text.replaceAll("^\"|\"$", "");
+                String language = parts[0];
+                String text = parts[1].toLowerCase().replaceAll("[^a-zA-Z]", "");
 
                 double[] freq = SingleLayerNetwork.textToFrequencyVector(text);
 

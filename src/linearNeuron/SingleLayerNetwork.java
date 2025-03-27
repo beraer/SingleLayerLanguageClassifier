@@ -95,7 +95,7 @@ public class SingleLayerNetwork {
     }
 
     public void evaluateMetrics(List<Vector> testData) {
-        int numClasses = weights.length; // e.g., 4 languages
+        int numClasses = weights.length;
         int[][] confusionMatrix = new int[numClasses][numClasses];
 
         for (Vector v : testData) {
@@ -122,13 +122,13 @@ public class SingleLayerNetwork {
             int fn = 0;
             for (int j = 0; j < numClasses; j++) {
                 if (j != i) {
-                    fp += confusionMatrix[j][i];
-                    fn += confusionMatrix[i][j];
+                    fp += confusionMatrix[j][i]; //same column different rows
+                    fn += confusionMatrix[i][j]; //same row different columns
                 }
             }
-            precision[i] = (tp + fp) > 0 ? (double) tp / (tp + fp) : 0;
-            recall[i]    = (tp + fn) > 0 ? (double) tp / (tp + fn) : 0;
-            f1[i]        = (precision[i] + recall[i]) > 0 ? 2 * precision[i] * recall[i] / (precision[i] + recall[i]) : 0;
+            precision[i] = (tp + fp) > 0 ? (double) tp / (tp + fp) : 0; //precision = tp / tp + fp
+            recall[i]    = (tp + fn) > 0 ? (double) tp / (tp + fn) : 0; //recall = tp / tp + fn
+            f1[i]        = (precision[i] + recall[i]) > 0 ? 2 * precision[i] * recall[i] / (precision[i] + recall[i]) : 0; //f-m = 2PR/(P+R)
         }
 
         String[] classNames = {"English", "Spanish", "German", "Polish"};
@@ -159,24 +159,17 @@ public class SingleLayerNetwork {
 
     public static double[] textToFrequencyVector(String text) {
         double[] freq = new double[26];
-        text = text.toLowerCase().replaceAll("[^a-z]", "");
-
-        for (char c : text.toCharArray()) {
-            int index = c - 'a';
-            if (index >= 0 && index < 26) {
-                freq[index]++;
-            }
+        for(int i = 0; i < text.length(); i++) {
+            freq[text.charAt(i) - 'a']++;
         }
 
-        // Normalize by total letter count
+        //normalize
         double sum = 0.0;
-        for (double f : freq) {
-            sum += f;
+        for(int i = 0; i < freq.length; i++) {
+            sum += freq[i];
         }
-        if (sum > 0) {
-            for (int i = 0; i < freq.length; i++) {
-                freq[i] /= sum;
-            }
+        for(int i = 0; i < freq.length; i++) {
+            freq[i] /= sum;
         }
         return freq;
     }
